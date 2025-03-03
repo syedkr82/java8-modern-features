@@ -5,15 +5,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class OrderProcessing {
+
+    static List<Order> orders = Arrays.asList(
+            new Order(101, "Alice", 250.5, "COMPLETED"),
+            new Order(102, "Bob", 300.0, "PENDING"),
+            new Order(103, "Charlie", 150.75, "COMPLETED"),
+            new Order(104, "David", 500.0, "CANCELLED"),
+            new Order(105, "Eve", 700.25, "COMPLETED"),
+            new Order(106, "Frank", 400.0, "PENDING")
+    );
+
     public static void main(String[] args) {
-        List<Order> orders = Arrays.asList(
-                new Order(101, "Alice", 250.5, "COMPLETED"),
-                new Order(102, "Bob", 300.0, "PENDING"),
-                new Order(103, "Charlie", 150.75, "COMPLETED"),
-                new Order(104, "David", 500.0, "CANCELLED"),
-                new Order(105, "Eve", 700.25, "COMPLETED"),
-                new Order(106, "Frank", 400.0, "PENDING")
-        );
+
 
         // 1️⃣ FILTER - Get all COMPLETED orders
         List<Order> completedOrders = orders.stream()
@@ -43,5 +46,31 @@ public class OrderProcessing {
         Map<String, Long> orderCountByStatus = orders.stream()
                 .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
         System.out.println("Order Count by Status: " + orderCountByStatus);
+
+        int searchId = 103;
+        Optional<Order> orderOpt = findOrderById(searchId);
+
+        //6 Handle Optional - If Order Exists, Print It
+        orderOpt.ifPresent(order -> System.out.println("Order Found: " + order));
+
+        //7 Handle Default Value if Order Not Found
+        Order defaultOrder = orderOpt.orElse(new Order(0, "Default", 0.0, "N/A"));
+        System.out.println("Final Order: " + defaultOrder);
+
+        //8 Throw Exception if Order Not Found
+        try {
+            Order requiredOrder = orderOpt.orElseThrow(() -> new NoSuchElementException("Order Not Found"));
+            System.out.println("Required Order: " + requiredOrder);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+
+    }
+
+    // 1️⃣ Find Order By ID and Return Optional
+    public static Optional<Order> findOrderById(int orderId) {
+        return orders.stream()
+                .filter(order -> order.getOrderId() == orderId)
+                .findFirst();
     }
 }
